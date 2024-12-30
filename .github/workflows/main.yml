@@ -12,19 +12,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      # - name: Checkout repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 0
 
-      - name: Install LibreOffice
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libreoffice
+      # - name: Install LibreOffice
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libreoffice
 
-      - name: Install ImageMagick
-        run: |
-          sudo apt-get install -y imagemagick
+      # - name: Install ImageMagick
+      #   run: |
+      #     sudo apt-get install -y imagemagick
 
       - name: Find changed PPT files
         id: changed-files
@@ -33,32 +33,32 @@ jobs:
           FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '\.ppt$|\.pptx$' || true)
           echo "files=$FILES" >> $GITHUB_OUTPUT
 
-      - name: Convert PPT to PDF
-        run: |
-          # Read files from previous step
-          IFS=$'\n' read -ra FILES <<< "${{ steps.changed-files.outputs.files }}"
-          for file in "${FILES[@]}"; do
-            filename=$(basename -- "$file")
-            dirname=$(dirname -- "$file")
-            name="${filename%.*}"
-            
-            # Convert to PDF
-            libreoffice --headless --convert-to pdf "$file" --outdir "$dirname"
-            
-            # Convert PDF to image
-            convert -density 300 "$dirname/$name.pdf" -quality 100 "$dirname/$name.png"
-          done
+      # - name: Convert PPT to PDF
+      #   run: |
+      #     # Read files from previous step
+      #     IFS=$'\n' read -ra FILES <<< "${{ steps.changed-files.outputs.files }}"
+      #     for file in "${FILES[@]}"; do
+      #       filename=$(basename -- "$file")
+      #       dirname=$(dirname -- "$file")
+      #       name="${filename%.*}"
 
-      - name: Commit and push changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+      #       # Convert to PDF
+      #       libreoffice --headless --convert-to pdf "$file" --outdir "$dirname"
 
-          # Add all PNG files
-          git add *.png
+      #       # Convert PDF to image
+      #       convert -density 300 "$dirname/$name.pdf" -quality 100 "$dirname/$name.png"
+      #     done
 
-          # Commit if there are changes
-          git diff --staged --quiet || git commit -m "Convert PPT to images"
+      # - name: Commit and push changes
+      #   run: |
+      #     git config --local user.email "action@github.com"
+      #     git config --local user.name "GitHub Action"
 
-          # Push changes
-          git push
+      #     # Add all PNG files
+      #     git add *.png
+
+      #     # Commit if there are changes
+      #     git diff --staged --quiet || git commit -m "Convert PPT to images"
+
+      #     # Push changes
+      #     git push
