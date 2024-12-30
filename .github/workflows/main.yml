@@ -72,9 +72,17 @@ jobs:
             echo "正在转换为PDF..."
             libreoffice --headless --convert-to pdf "$file" --outdir "$dirname"
             
-            # 转换PDF为JPG，使用较低的分辨率和质量
+            # 检查PDF是否存在
+            echo "检查PDF文件..."
+            ls -l "$dirname/$name.pdf"
+            
+            # 转换PDF为JPG，使用完整路径
             echo "正在转换PDF为JPG..."
-            convert -density 150 -quality 50 "$dirname/$name.pdf" "$dirname/$name.jpg"
+            convert -density 150 -quality 50 "${dirname}/${name}.pdf" "${dirname}/${name}.jpg"
+            
+            # 检查转换后的文件
+            echo "检查生成的文件..."
+            ls -l "$dirname"
             
             echo "完成转换: $file"
             echo "----------------------------------------"
