@@ -43,10 +43,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libreoffice
           sudo apt-get install -y imagemagick
+          sudo apt-get install -y ghostscript
 
       - name: Configure ImageMagick policy
         run: |
           sudo sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+          cat /etc/ImageMagick-6/policy.xml  # 显示修改后的配置
+          convert -list policy  # 显示当前策略
 
       - name: Convert PPT to PDF
         run: |
@@ -76,13 +79,21 @@ jobs:
             echo "检查PDF文件..."
             ls -l "$dirname/$name.pdf"
             
+            # 显示PDF文件信息
+            echo "PDF文件信息："
+            identify "${dirname}/${name}.pdf" || true
+            
             # 转换PDF为JPG（所有页面）
             echo "正在转换PDF为JPG（所有页面）..."
-            convert -density 150 "${dirname}/${name}.pdf" -append -quality 50 "${dirname}/${name}_all_pages.jpg"
+            convert -verbose -density 100 -resize 1080x "${dirname}/${name}.pdf" \
+                    -background white -alpha remove -append \
+                    -quality 50 "${dirname}/${name}_all_pages.jpg"
             
             # 转换PDF为JPG（第一页）
             echo "正在转换PDF为JPG（第一页）..."
-            convert -density 150 "${dirname}/${name}.pdf[0]" -quality 50 "${dirname}/${name}_first_page.jpg"
+            convert -verbose -density 100 -resize 1080x "${dirname}/${name}.pdf[0]" \
+                    -background white -alpha remove \
+                    -quality 50 "${dirname}/${name}_first_page.jpg"
             
             # 删除PDF文件
             echo "删除临时PDF文件..."
