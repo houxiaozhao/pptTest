@@ -29,8 +29,22 @@ jobs:
       - name: Find changed PPT files
         id: changed-files
         run: |
-          # Get list of changed PPT/PPTX files
-          FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '\.ppt$|\.pptx$' || true)
+          echo "Event name: ${{ github.event_name }}"
+          echo "Before commit: ${{ github.event.before }}"
+          echo "After commit: ${{ github.event.after }}"
+
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "处理 push 事件..."
+            FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -E '\.ppt$|\.pptx$' || true)
+          else
+            echo "处理手动触发事件..."
+            FILES=$(git diff --name-only HEAD^ HEAD | grep -E '\.ppt$|\.pptx$' || true)
+          fi
+
+          echo "----------------------------------------"
+          echo "找到的文件列表："
+          echo "$FILES"
+          echo "----------------------------------------"
           echo "files=$FILES" >> $GITHUB_OUTPUT
 
       # - name: Convert PPT to PDF
