@@ -17,15 +17,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Install LibreOffice
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y libreoffice
-
-      # - name: Install ImageMagick
-      #   run: |
-      #     sudo apt-get install -y imagemagick
-
       - name: Find changed PPT files
         id: changed-files
         run: |
@@ -47,32 +38,56 @@ jobs:
           echo "----------------------------------------"
           echo "files=$FILES" >> $GITHUB_OUTPUT
 
-      # - name: Convert PPT to PDF
-      #   run: |
-      #     # Read files from previous step
-      #     IFS=$'\n' read -ra FILES <<< "${{ steps.changed-files.outputs.files }}"
-      #     for file in "${FILES[@]}"; do
-      #       filename=$(basename -- "$file")
-      #       dirname=$(dirname -- "$file")
-      #       name="${filename%.*}"
+      - name: Install LibreOffice and ImageMagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libreoffice
+          sudo apt-get install -y imagemagick
 
-      #       # Convert to PDF
-      #       libreoffice --headless --convert-to pdf "$file" --outdir "$dirname"
+      - name: Convert PPT to PDF
+        run: |
+          echo "开始转换过程..."
+          echo "获取到的文件列表："
+          echo "${{ steps.changed-files.outputs.files }}"
 
-      #       # Convert PDF to image
-      #       convert -density 300 "$dirname/$name.pdf" -quality 100 "$dirname/$name.png"
-      #     done
+          # 读取上一步的文件列表
+          IFS=$'\n' read -ra FILES <<< "${{ steps.changed-files.outputs.files }}"
+          for file in "${FILES[@]}"; do
+            echo "----------------------------------------"
+            echo "处理文件: $file"
+            
+            filename=$(basename -- "$file")
+            dirname=$(dirname -- "$file")
+            name="${filename%.*}"
+            
+            echo "文件名: $filename"
+            echo "目录: $dirname"
+            echo "基础名: $name"
+            
+            # 转换为PDF
+            echo "正在转换为PDF..."
+            libreoffice --headless --convert-to pdf "$file" --outdir "$dirname"
+            
+            # 转换PDF为图片
+            echo "正在转换PDF为PNG..."
+            convert -density 300 "$dirname/$name.pdf" -quality 100 "$dirname/$name.png"
+            
+            echo "完成转换: $file"
+            echo "----------------------------------------"
+          done
 
-      # - name: Commit and push changes
-      #   run: |
-      #     git config --local user.email "action@github.com"
-      #     git config --local user.name "GitHub Action"
+          echo "所有文件处理完成！"
 
-      #     # Add all PNG files
-      #     git add *.png
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
 
-      #     # Commit if there are changes
-      #     git diff --staged --quiet || git commit -m "Convert PPT to images"
+          # Add all PNG files
+          git add *.png
 
-      #     # Push changes
-      #     git push
+          # Commit if there are changes
+          git diff --staged --quiet || git commit -m "Convert PPT to images"
+
+          # Push changes
+          git push
