@@ -76,11 +76,19 @@ jobs:
             echo "检查PDF文件..."
             ls -l "$dirname/$name.pdf"
             
-            # 转换PDF为JPG，使用完整路径
-            echo "正在转换PDF为JPG..."
-            convert -density 150 -quality 50 "${dirname}/${name}.pdf" "${dirname}/${name}.jpg"
+            # 转换PDF为JPG（所有页面）
+            echo "正在转换PDF为JPG（所有页面）..."
+            magick -density 150 "${dirname}/${name}.pdf" -append -quality 50 "${dirname}/${name}_all_pages.jpg"
             
-            # 检查转换后的文件
+            # 转换PDF为JPG（第一页）
+            echo "正在转换PDF为JPG（第一页）..."
+            magick -density 150 "${dirname}/${name}.pdf[0]" -quality 50 "${dirname}/${name}_first_page.jpg"
+            
+            # 删除PDF文件
+            echo "删除临时PDF文件..."
+            rm "${dirname}/${name}.pdf"
+            
+            # 检查生成的文件
             echo "检查生成的文件..."
             ls -l "$dirname"
             
