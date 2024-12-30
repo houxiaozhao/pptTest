@@ -78,11 +78,11 @@ jobs:
             
             # 转换PDF为JPG（所有页面）
             echo "正在转换PDF为JPG（所有页面）..."
-            magick -density 150 "${dirname}/${name}.pdf" -append -quality 50 "${dirname}/${name}_all_pages.jpg"
+            convert -density 150 "${dirname}/${name}.pdf" -append -quality 50 "${dirname}/${name}_all_pages.jpg"
             
             # 转换PDF为JPG（第一页）
             echo "正在转换PDF为JPG（第一页）..."
-            magick -density 150 "${dirname}/${name}.pdf[0]" -quality 50 "${dirname}/${name}_first_page.jpg"
+            convert -density 150 "${dirname}/${name}.pdf[0]" -quality 50 "${dirname}/${name}_first_page.jpg"
             
             # 删除PDF文件
             echo "删除临时PDF文件..."
