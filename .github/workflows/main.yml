@@ -111,11 +111,11 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "houxiaozhao@github.com"
+          git config --local user.name "houxiaozhao"
 
-          # Add all PNG files
-          git add *.png
+          # Add all JPG files
+          git add "*.jpg"
 
           # Commit if there are changes
           git diff --staged --quiet || git commit -m "Convert PPT to images"
